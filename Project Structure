@@ -1,0 +1,9 @@
+8051_ADC_LED_Interface/
+├── main.c                // Full C code
+├── README.md             // Project overview and explanation
+├── schematics/           // Folder for circuit diagrams (if any)
+│   └── adc_led_circuit.png
+├── hex/                  // Compiled .hex file (optional)
+│   └── main.hex
+└── docs/                 // Documentation or test results (optional)
+
