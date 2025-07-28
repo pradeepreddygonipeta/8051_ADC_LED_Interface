@@ -1,0 +1,52 @@
+#include <reg51.h>
+
+#define data_port P1      // ADC data output connected to Port 1 (must be configured as input)
+sbit rd = P3^7;           // ADC RD pin (active low)
+sbit wr = P3^6;           // ADC WR pin (active low)
+sbit intr = P3^4;         // ADC INTR pin (active low)
+
+void delay(unsigned int time) 
+{
+    unsigned int i, j;
+    for(i = 0; i < time; i++)
+    {
+        for(j = 0; j < 1257; j++);
+    }
+}
+
+void start_conversion()
+{
+    wr = 0;        // Pull WR low to start conversion
+    delay(1);      // Small delay (min 100ns for ADC0804)
+    wr = 1;        // Pull WR high to latch
+}
+
+unsigned char read_adc() 
+{
+    unsigned char value;
+    
+    start_conversion();        // Start ADC conversion
+    while(intr == 1);         // Wait until conversion is done (INTR goes LOW)
+    rd = 0;                   // Pull RD low to read data
+    delay(1);                 // Small delay (min 135ns for ADC0804)
+    value = data_port;        // Read ADC value
+    rd = 1;                   // Pull RD high
+    
+    return value;
+}
+
+void main() 
+{
+    unsigned char adc_value;
+    
+    rd = 1;        // Initialize RD high (inactive)
+    wr = 1;        // Initialize WR high (inactive)
+    data_port = 0xFF; // Configure Port 1 as input (for ADC data)
+    
+    while(1) 
+    {
+        adc_value = read_adc();    // Read ADC value (0-255)
+        P2 = ~adc_value;           // Display inverted value on LEDs (since LEDs typically sink current)
+        delay(500);                // Delay for visibility
+    }
+}
